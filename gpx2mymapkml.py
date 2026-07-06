@@ -10,8 +10,12 @@ def make_parser():
         a single My Maps-friendly KML"""
     )
 
-    parser.add_argument("--track", required=True, help="Track GPX file")
-    parser.add_argument("--waypoints", required=True, help="Waypoints GPX file")
+    parser.add_argument(
+        "--track", "-t", required=True, help="Track GPX file"
+    )
+    parser.add_argument(
+        "--waypoints", "-w", required=True, help="Waypoints GPX file"
+    )
     parser.add_argument(
         "-o",
         "--output",
@@ -33,7 +37,8 @@ def add_tracks(folder, gpx):
     for track in gpx.tracks:
         for segment in track.segments:
             all_coords.extend(
-                (p.longitude, p.latitude, p.elevation or 0) for p in segment.points
+                (p.longitude, p.latitude, p.elevation or 0)
+                for p in segment.points
             )
 
     if all_coords:
