@@ -52,7 +52,7 @@ def add_waypoints(folder, gpx):
         desc_parts = []
 
         if wp.comment:
-            desc_parts.append(f"Comment: {wp.comment}")
+            desc_parts.append(f"{wp.comment}")
 
         description = "\n".join(desc_parts) if desc_parts else None
 
@@ -77,7 +77,7 @@ def main():
     kml = simplekml.Kml()
 
     # Single folder -- presenting single layer in My Maps
-    folder = kml.newfolder(name="Survey Locations")
+    folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
 
     add_tracks(folder, gpx_tracks)
     add_waypoints(folder, gpx_waypoints)
