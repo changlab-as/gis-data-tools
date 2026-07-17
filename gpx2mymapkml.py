@@ -2,6 +2,8 @@ import argparse
 import gpxpy
 import simplekml
 from pathlib import Path
+from species import SPECIES
+import xml.etree.ElementTree as ET
 
 
 def make_parser():
@@ -47,14 +49,31 @@ def add_tracks(folder, gpx):
         line.style.linestyle.color = simplekml.Color.red
 
 
+def create_desc(comment: str) -> str:
+    """Convert species numbers from a GPX <cmt> field into species codes"""
+
+    if not comment:
+        return ""
+
+    numbers = [n.strip() for n in comment.split(",")]
+    codes = []
+
+    for number in numbers:
+        code = number  # default if not found
+
+        for species in SPECIES.values():
+            if species["number"] == number:
+                code = species["code"]
+                break
+
+        codes.append(code)
+
+    return ", ".join(codes)
+
+
 def add_waypoints(folder, gpx):
     for wp in gpx.waypoints:
-        desc_parts = []
-
-        if wp.comment:
-            desc_parts.append(f"{wp.comment}")
-
-        description = "\n".join(desc_parts) if desc_parts else None
+        description = create_desc(wp.comment)
 
         folder.newpoint(
             name=wp.name or "Waypoint",
