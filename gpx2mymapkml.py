@@ -12,7 +12,10 @@ def make_parser():
     )
 
     parser.add_argument(
-        "--track", "-t", required=False, help="Track GPX file"
+        "--track",
+        "-t",
+        required=False,
+        help="Track GPX file. Add it when it is survey event",
     )
     parser.add_argument(
         "--waypoints", "-w", required=True, help="Waypoints GPX file"
