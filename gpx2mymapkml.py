@@ -3,7 +3,6 @@ import gpxpy
 import simplekml
 from pathlib import Path
 from species import SPECIES
-import xml.etree.ElementTree as ET
 
 
 def make_parser():
@@ -13,7 +12,7 @@ def make_parser():
     )
 
     parser.add_argument(
-        "--track", "-t", required=True, help="Track GPX file"
+        "--track", "-t", required=False, help="Track GPX file"
     )
     parser.add_argument(
         "--waypoints", "-w", required=True, help="Waypoints GPX file"
@@ -86,11 +85,9 @@ def main():
     parser = make_parser()
     args = parser.parse_args()
 
-    track_path = Path(args.track)
     wp_path = Path(args.waypoints)
     output_path = Path(args.output)
 
-    gpx_tracks = parse_gpx(track_path)
     gpx_waypoints = parse_gpx(wp_path)
 
     kml = simplekml.Kml()
@@ -98,7 +95,11 @@ def main():
     # Single folder -- presenting single layer in My Maps
     folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
 
-    add_tracks(folder, gpx_tracks)
+    if args.track:
+        track_path = Path(args.track)
+        gpx_tracks = parse_gpx(track_path)
+        add_tracks(folder, gpx_tracks)
+
     add_waypoints(folder, gpx_waypoints)
 
     kml.save(output_path)
