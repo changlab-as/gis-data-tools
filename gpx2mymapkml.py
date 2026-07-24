@@ -2,20 +2,22 @@ import argparse
 import gpxpy
 import simplekml
 from pathlib import Path
-from species import SPECIES
+import csv
 
 
 def make_parser():
     parser = argparse.ArgumentParser(
-        description="""Convert Garmin GPX (track + waypoints) to
-        a single My Maps-friendly KML"""
+        description="""Convert Garmin GPX to a single My Maps-friendly KML
+        based on the type of event took place"""
     )
-
+    parser.add_argument(
+        "--type", "-ty", required=True, help="'survey' or 'collection'"
+    )
     parser.add_argument(
         "--track",
         "-t",
         required=False,
-        help="Track GPX file. Add it when it is survey event",
+        help="Track GPX file. Add it when it is a SURVEY event",
     )
     parser.add_argument(
         "--waypoints", "-w", required=True, help="Waypoints GPX file"
@@ -26,7 +28,12 @@ def make_parser():
         default="combined.kml",
         help="Output KML file (default: combined.kml)",
     )
-
+    parser.add_argument(
+        "--plant_names_csv",
+        "-p",
+        required=False,
+        help="Add it when it is a SURVEY event",
+    )
     return parser
 
 
@@ -87,7 +94,18 @@ def add_waypoints(folder, gpx):
 def main():
     parser = make_parser()
     args = parser.parse_args()
-
+    '''
+    get wp_path
+    kml
+    folder
+    if type = collection
+        process waypoint, decription goes through directly
+    if type = survey
+        get track_path
+        get species_path
+        process track
+        process waypoints, description number translates into species_id
+    '''
     wp_path = Path(args.waypoints)
     output_path = Path(args.output)
 
