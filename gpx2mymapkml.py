@@ -58,7 +58,7 @@ def add_tracks(folder, gpx):
         line.style.linestyle.color = simplekml.Color.red
 
 
-def create_desc(comment: str) -> str:
+def create_desc(plant_names_csv, comment: str) -> str:
     """Convert species numbers from a GPX <cmt> field into species codes"""
 
     if not comment:
@@ -80,7 +80,7 @@ def create_desc(comment: str) -> str:
     return ", ".join(codes)
 
 
-def add_waypoints(folder, gpx):
+def add_survey_waypoints(folder, gpx):
     for wp in gpx.waypoints:
         description = create_desc(wp.comment)
 
@@ -94,7 +94,7 @@ def add_waypoints(folder, gpx):
 def main():
     parser = make_parser()
     args = parser.parse_args()
-    '''
+    """
     get wp_path
     kml
     folder
@@ -105,23 +105,30 @@ def main():
         get species_path
         process track
         process waypoints, description number translates into species_id
-    '''
+    """
     wp_path = Path(args.waypoints)
     output_path = Path(args.output)
-
-    gpx_waypoints = parse_gpx(wp_path)
 
     kml = simplekml.Kml()
 
     # Single folder -- presenting single layer in My Maps
     folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
 
-    if args.track:
+    gpx_waypoints = parse_gpx(wp_path)
+
+    if args.type == "collection":
+        for wp in gpx_waypoints:
+            folder.newpoint(
+                name=wp.name or "Waypoint",
+                coords=[(wp.longitude, wp.latitude)],
+                description=wp.comment,
+            )
+
+    elif args.type == "survey":
         track_path = Path(args.track)
         gpx_tracks = parse_gpx(track_path)
         add_tracks(folder, gpx_tracks)
-
-    add_waypoints(folder, gpx_waypoints)
+        add_survey_waypoints(folder, gpx_waypoints)
 
     kml.save(output_path)
 
