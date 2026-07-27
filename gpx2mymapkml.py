@@ -63,14 +63,19 @@ def load_plant_id_lookup(plant_names_csv):
     with open(plant_names_csv, encoding="utf-8") as file:
         reader = csv.DictReader(file)
         return {
-            row["number"].strip(): row["plant_id"].strip for row in reader
+            row["number"].strip(): row["plant_id"].strip()
+            for row in reader
         }
 
 
-def create_desc(plant_id_lookup, comment: str) -> str:
+def create_desc(plant_id_lookup, comment: str | None) -> str:
     """Convert species numbers from a GPX <cmt> field into species codes"""
+    if not comment:
+        return ""
     numbers = re.findall(r"\d+", comment)
-    return ", ".join(plant_id_lookup.get(number) for number in numbers)
+    return ", ".join(
+        plant_id_lookup.get(number, number) for number in numbers
+    )
 
 
 def main():
@@ -98,10 +103,8 @@ def main():
 
     gpx_waypoints = parse_gpx(wp_path)
 
-    plant_id_lookup = load_plant_id_lookup(args.plant_names_csv)
-
     if args.type == "collection":
-        for wp in gpx_waypoints:
+        for wp in gpx_waypoints.waypoints:
             folder.newpoint(
                 name=wp.name or "Waypoint",
                 coords=[(wp.longitude, wp.latitude)],
@@ -109,11 +112,14 @@ def main():
             )
 
     elif args.type == "survey":
+        plant_id_lookup = load_plant_id_lookup(args.plant_names_csv)
+
         track_path = Path(args.track)
         gpx_tracks = parse_gpx(track_path)
         add_tracks(folder, gpx_tracks)
-        for wpt in gpx_waypoints:
-            desc = create_desc(plant_id_lookup, wpt.comment)
+
+        for wp in gpx_waypoints.waypoints:
+            desc = create_desc(plant_id_lookup, wp.comment)
             folder.newpoint(
                 name=wp.name or "Waypoint",
                 coords=[(wp.longitude, wp.latitude)],
