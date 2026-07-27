@@ -3,6 +3,7 @@ import gpxpy
 import simplekml
 from pathlib import Path
 import csv
+import re
 
 
 def make_parser():
@@ -58,37 +59,18 @@ def add_tracks(folder, gpx):
         line.style.linestyle.color = simplekml.Color.red
 
 
-def create_desc(plant_names_csv, comment: str) -> str:
+def load_plant_id_lookup(plant_names_csv):
+    with open(plant_names_csv, encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        return {
+            row["number"].strip(): row["plant_id"].strip for row in reader
+        }
+
+
+def create_desc(plant_id_lookup, comment: str) -> str:
     """Convert species numbers from a GPX <cmt> field into species codes"""
-
-    if not comment:
-        return ""
-
-    numbers = [n.strip() for n in comment.split(",")]
-    codes = []
-
-    for number in numbers:
-        code = number  # default if not found
-
-        for species in SPECIES.values():
-            if species["number"] == number:
-                code = species["code"]
-                break
-
-        codes.append(code)
-
-    return ", ".join(codes)
-
-
-def add_survey_waypoints(folder, gpx):
-    for wp in gpx.waypoints:
-        description = create_desc(wp.comment)
-
-        folder.newpoint(
-            name=wp.name or "Waypoint",
-            coords=[(wp.longitude, wp.latitude)],
-            description=description,
-        )
+    numbers = re.findall(r"\d+", comment)
+    return ", ".join(plant_id_lookup.get(number) for number in numbers)
 
 
 def main():
@@ -116,6 +98,8 @@ def main():
 
     gpx_waypoints = parse_gpx(wp_path)
 
+    plant_id_lookup = load_plant_id_lookup(args.plant_names_csv)
+
     if args.type == "collection":
         for wp in gpx_waypoints:
             folder.newpoint(
@@ -128,7 +112,13 @@ def main():
         track_path = Path(args.track)
         gpx_tracks = parse_gpx(track_path)
         add_tracks(folder, gpx_tracks)
-        add_survey_waypoints(folder, gpx_waypoints)
+        for wpt in gpx_waypoints:
+            desc = create_desc(plant_id_lookup, wpt.comment)
+            folder.newpoint(
+                name=wp.name or "Waypoint",
+                coords=[(wp.longitude, wp.latitude)],
+                description=desc,
+            )
 
     kml.save(output_path)
 
