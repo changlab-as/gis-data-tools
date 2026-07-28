@@ -81,18 +81,7 @@ def create_desc(plant_id_lookup, comment: str | None) -> str:
 def main():
     parser = make_parser()
     args = parser.parse_args()
-    """
-    get wp_path
-    kml
-    folder
-    if type = collection
-        process waypoint, decription goes through directly
-    if type = survey
-        get track_path
-        get species_path
-        process track
-        process waypoints, description number translates into species_id
-    """
+
     wp_path = Path(args.waypoints)
     output_path = Path(args.output)
 
@@ -101,10 +90,10 @@ def main():
     # Single folder -- presenting single layer in My Maps
     folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
 
-    gpx_waypoints = parse_gpx(wp_path)
+    gpx_obj = parse_gpx(wp_path)
 
     if args.type == "collection":
-        for wp in gpx_waypoints.waypoints:
+        for wp in gpx_obj.waypoints:
             folder.newpoint(
                 name=wp.name or "Waypoint",
                 coords=[(wp.longitude, wp.latitude)],
@@ -118,7 +107,7 @@ def main():
         gpx_tracks = parse_gpx(track_path)
         add_tracks(folder, gpx_tracks)
 
-        for wp in gpx_waypoints.waypoints:
+        for wp in gpx_obj.waypoints:
             desc = create_desc(plant_id_lookup, wp.comment)
             folder.newpoint(
                 name=wp.name or "Waypoint",
