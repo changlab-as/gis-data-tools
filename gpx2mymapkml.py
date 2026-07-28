@@ -78,6 +78,15 @@ def create_desc(plant_id_lookup, comment: str | None) -> str:
     )
 
 
+def add_waypoints(folder, waypoints, desc_func):
+    for wp in waypoints:
+        folder.newpoint(
+            name=wp.name or "Waypoint",
+            coords=[(wp.longitude, wp.latitude)],
+            description=desc_func(wp.comment),
+        )
+
+
 def main():
     parser = make_parser()
     args = parser.parse_args()
@@ -86,33 +95,29 @@ def main():
     output_path = Path(args.output)
 
     kml = simplekml.Kml()
+    kml_folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
 
-    # Single folder -- presenting single layer in My Maps
-    folder = kml.newfolder(name="YYYY-MM-DD_FT0000")
-
-    gpx_obj = parse_gpx(wp_path)
+    wp_gpx = parse_gpx(wp_path)
 
     if args.type == "collection":
-        for wp in gpx_obj.waypoints:
-            folder.newpoint(
-                name=wp.name or "Waypoint",
-                coords=[(wp.longitude, wp.latitude)],
-                description=wp.comment,
-            )
+        add_waypoints(
+            kml_folder, wp_gpx.waypoints, lambda comment: comment
+        )
 
     elif args.type == "survey":
+        if not args.track or not args.plant_names_csv:
+            parser.error(
+            "--track and --plant_names_csv are required for survey"
+            )
         plant_id_lookup = load_plant_id_lookup(args.plant_names_csv)
 
-        track_path = Path(args.track)
-        gpx_tracks = parse_gpx(track_path)
-        add_tracks(folder, gpx_tracks)
+        track_gpx = parse_gpx(Path(args.track))
+        add_tracks(kml_folder, track_gpx)
 
-        for wp in gpx_obj.waypoints:
-            desc = create_desc(plant_id_lookup, wp.comment)
-            folder.newpoint(
-                name=wp.name or "Waypoint",
-                coords=[(wp.longitude, wp.latitude)],
-                description=desc,
+        add_waypoints(
+                kml_folder,
+                wp_gpx.waypoints,
+                lambda comment: create_desc(plant_id_lookup, comment),
             )
 
     kml.save(output_path)
