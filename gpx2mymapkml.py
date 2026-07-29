@@ -72,11 +72,10 @@ def create_desc(plant_id_lookup, comment: str | None) -> str:
     """Convert species numbers from a GPX <cmt> field into species codes"""
     if not comment:
         return ""
-    numbers = re.findall(r"\d+", comment)
-    return ", ".join(
-        plant_id_lookup.get(number, number) for number in numbers
-    )
-    # to add: if not number, keep the text
+
+    tokens = re.findall(r"\d+|[A-Za-z]+", comment)
+
+    return ", ".join(plant_id_lookup.get(token, token) for token in tokens)
 
 
 def add_collection_waypoints(folder, waypoints):
