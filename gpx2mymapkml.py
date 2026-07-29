@@ -76,14 +76,29 @@ def create_desc(plant_id_lookup, comment: str | None) -> str:
     return ", ".join(
         plant_id_lookup.get(number, number) for number in numbers
     )
+    # to add: if not number, keep the text
 
 
-def add_waypoints(folder, waypoints, desc_func):
+def add_collection_waypoints(folder, waypoints):
     for wp in waypoints:
         folder.newpoint(
             name=wp.name or "Waypoint",
             coords=[(wp.longitude, wp.latitude)],
-            description=desc_func(wp.comment),
+            description=wp.comment,
+        )
+
+
+def add_survey_waypoints(folder, waypoints, plant_id_lookup):
+    for wp in waypoints:
+        description = create_desc(
+            plant_id_lookup,
+            wp.comment,
+        )
+
+        folder.newpoint(
+            name=wp.name or "Waypoint",
+            coords=[(wp.longitude, wp.latitude)],
+            description=description,
         )
 
 
@@ -100,25 +115,23 @@ def main():
     wp_gpx = parse_gpx(wp_path)
 
     if args.type == "collection":
-        add_waypoints(
-            kml_folder, wp_gpx.waypoints, lambda comment: comment
-        )
+        add_collection_waypoints(kml_folder, wp_gpx.waypoints)
 
     elif args.type == "survey":
         if not args.track or not args.plant_names_csv:
             parser.error(
-            "--track and --plant_names_csv are required for survey"
+                "--track and --plant_names_csv are required for survey"
             )
         plant_id_lookup = load_plant_id_lookup(args.plant_names_csv)
 
         track_gpx = parse_gpx(Path(args.track))
         add_tracks(kml_folder, track_gpx)
 
-        add_waypoints(
-                kml_folder,
-                wp_gpx.waypoints,
-                lambda comment: create_desc(plant_id_lookup, comment),
-            )
+        add_survey_waypoints(
+            kml_folder,
+            wp_gpx.waypoints,
+            plant_id_lookup,
+        )
 
     kml.save(output_path)
 
