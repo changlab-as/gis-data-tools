@@ -78,7 +78,9 @@ def extract_polygons(kml_path):
 
         results.append(
             {
-                "survey_site": name_elem.text if name_elem is not None else "",
+                "survey_site": (
+                    name_elem.text if name_elem is not None else ""
+                ),
                 "latitude": lat,
                 "longitude": lon,
             }
@@ -91,7 +93,30 @@ def write_csv(data, output_path):
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
-            fieldnames=["survey_site", "coordinates"],
+            fieldnames=[
+                "survey_site",
+                "coordinates",
+                "1_蠅翼草",
+                "2_山螞蝗",
+                "3_天藍苜蓿",
+                "4_含羞草",
+                "5_草木樨",
+                "6_煉莢豆",
+                "7_雞眼草",
+                "8_蔓花生",
+                "9_白三葉草",
+                "10_假地豆",
+                "11_穗花木藍",
+                "12_胡枝子",
+                "13_假山扁豆",
+                "14_太陽麻",
+                "15_鋪地蝙蝠草",
+                "16_銀合歡",
+                "17_倒卵葉木藍",
+                "18_疑似一條根",
+                "19_寬翼豆",
+                "20_田菁",
+            ],
             quoting=csv.QUOTE_MINIMAL,  # ensures quotes when needed
         )
 
@@ -101,7 +126,10 @@ def write_csv(data, output_path):
             coord_str = f"{row['latitude']:.6f}, {row['longitude']:.6f}"
 
             writer.writerow(
-                {"survey_site": row["survey_site"], "coordinates": coord_str}
+                {
+                    "survey_site": row["survey_site"],
+                    "coordinates": coord_str,
+                }
             )
 
 
@@ -111,7 +139,9 @@ def main():
         description="Extract polygon centroids from KML (Google My Maps)"
     )
     parser.add_argument("--kml_path", "-k", help="Path to input KML file")
-    parser.add_argument("-o", "--output", default="output.csv", help="Output CSV path")
+    parser.add_argument(
+        "-o", "--output", default="output.csv", help="Output CSV path"
+    )
 
     args = parser.parse_args()
 
