@@ -2,6 +2,7 @@
 name = "gis-data-tools"
 version = "0.1.0"
 description = "Tools to work with GIS data, e.g. GPX files from GPS machine, user-generated KML"
+package-mode = false
 authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
