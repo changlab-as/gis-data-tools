@@ -2,8 +2,10 @@ import argparse
 from datetime import datetime, timezone
 import gpxpy
 import gpxpy.geo
+import logging
 from pathlib import Path
 
+logging.basicConfig(level=logging.INFO)
 
 def make_parser():
     parser = argparse.ArgumentParser(
@@ -104,6 +106,7 @@ def main():
         )
         if distance > 5:
             unmatched.append(wp)
+            logging.info(f"{wp.name} is unmatched")
         else:
             matched.append(wp)
 
