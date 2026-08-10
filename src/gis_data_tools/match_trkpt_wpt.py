@@ -7,17 +7,21 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 
+
 def make_parser():
     parser = argparse.ArgumentParser(
-        description="""match track point and waypoint GPX files using recorded
-        time and coordinates. If update is selected, wpt gpx coordinates will 
-        be updated to most recent track point coordinates
+        description="""Match trackpoint and waypoint GPX files using recorded
+        time and coordinates. If a wpt's distance to the closest trkpt is
+        over 5m, the wpt and trkpt are considered unmatched.
+        If "update" is flagged (-u), a new gpx file will be created with the
+        unmatched wpt's coordinated updated to the most recent trkpt's
+        coordinates.
         """
     )
     parser.add_argument(
         "--update",
         "-u",
-        required=False,
+        action="store_true",
         help="update waypoint file's coords to match with trackpoint file",
     )
     parser.add_argument(
@@ -44,7 +48,7 @@ def parse_gpx(path):
 
 
 def get_trackpoints(trk_gpx):
-    """Get all trackpoints from the GPX file as a list"""
+    """Get all trackpoints from the GPX file into a list"""
     return [
         point
         for track in trk_gpx.tracks
@@ -54,6 +58,7 @@ def get_trackpoints(trk_gpx):
 
 
 def find_closest_trackpoint(waypoint, trackpoints):
+    """Iterate through trackpoints and find the closest one"""
     closest_trackpoint = None
     smallest_time_difference = None
 
@@ -71,13 +76,6 @@ def find_closest_trackpoint(waypoint, trackpoints):
 
 
 def main():
-    """
-    - find a waypoint's closest trackpoint using the time
-    - calculate two points' distance
-    - if distance is smaller than 5 meters, it is considered matched
-    - if not, indicates how many track points are not matched, and return a list
-      of waypoint's <name>
-    """
 
     parser = make_parser()
     args = parser.parse_args()
@@ -107,11 +105,26 @@ def main():
         if distance > 5:
             unmatched.append(wp)
             logging.info(f"{wp.name} is unmatched")
+
+            if args.update:
+                # if update is flagged in the argument, wpt will be updated
+                wp.latitude = closest_trkpt.latitude
+                wp.longitude = closest_trkpt.longitude
+                wp.elevation = closest_trkpt.elevation
         else:
             matched.append(wp)
 
+    logging.info(f"""there are {len(unmatched)} unmatched waypoints
+                     and {len(matched)} matched waypoints""")
+
     if args.update:
-        """update waypoints' coordinates to closest trackpoints' coords"""
+        """Create a new gpx file to update waypoints' coordinates
+        to the closest trackpoints' coordinates"""
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(wp_gpx.to_xml())
+            logging.info(
+                f"{output_path} has been created! Waypoints updated."
+            )
 
 
 if __name__ == "__main__":
