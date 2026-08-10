@@ -114,8 +114,9 @@ def main():
         else:
             matched.append(wp)
 
-    logging.info(f"""there are {len(unmatched)} unmatched waypoints
-                     and {len(matched)} matched waypoints""")
+    logging.info(f"""
+    there are {len(unmatched)} unmatched waypoints
+    and {len(matched)} matched waypoints""")
 
     if args.update:
         """Create a new gpx file to update waypoints' coordinates
