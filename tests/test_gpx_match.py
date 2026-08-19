@@ -246,3 +246,101 @@ def test_match_waypoint(
 
     assert closest is trackpoints[expected_index]
     assert distance == pytest.approx(expected_distance, abs=0.01)
+
+
+# Functional tests
+def test_main(
+    tmp_path,
+    monkeypatch,
+    track_gpx,
+    waypoint_0m,
+    waypoint_5m,
+    waypoint_0430,
+):
+    track_file = tmp_path / "track.gpx"
+    waypoint_file = tmp_path / "waypoints.gpx"
+
+    waypoint_gpx = gpxpy.gpx.GPX()
+    waypoint_gpx.waypoints.extend(
+        [
+            waypoint_0m,
+            waypoint_5m,
+            waypoint_0430,
+        ]
+    )
+
+    track_file.write_text(
+        track_gpx.to_xml(),
+        encoding="utf-8",
+    )
+
+    waypoint_file.write_text(
+        waypoint_gpx.to_xml(),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "match_trkpt_wpt",
+            "--track",
+            str(track_file),
+            "--waypoints",
+            str(waypoint_file),
+        ],
+    )
+
+    match_trkpt_wpt.main()
+
+
+def test_main_update(
+    tmp_path,
+    monkeypatch,
+    track_gpx,
+    trackpoints,
+    waypoint_0m,
+    waypoint_5m,
+    waypoint_0430,
+):
+    # Arrange
+    track_file = tmp_path / "track.gpx"
+    waypoint_file = tmp_path / "waypoints.gpx"
+    output_file = tmp_path / "updated.gpx"
+
+    waypoint_gpx = gpxpy.gpx.GPX()
+    waypoint_gpx.waypoints.extend(
+        [waypoint_0m, waypoint_5m, waypoint_0430]
+    )
+
+    track_file.write_text(track_gpx.to_xml(), encoding="utf-8")
+    waypoint_file.write_text(waypoint_gpx.to_xml(), encoding="utf-8")
+
+    # Act
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "match_trkpt_wpt",
+            "--track",
+            str(track_file),
+            "--waypoints",
+            str(waypoint_file),
+            "--update",
+            "--output",
+            str(output_file),
+        ],
+    )
+
+    match_trkpt_wpt.main()
+
+    # Assert
+    assert output_file.exists()
+
+    updated_gpx = gpxpy.parse(output_file.read_text(encoding="utf-8"))
+
+    assert len(updated_gpx.waypoints) == 3
+
+    updated_0430 = updated_gpx.waypoints[2]
+
+    assert updated_0430.latitude == trackpoints[6].latitude
+    assert updated_0430.longitude == trackpoints[6].longitude
+    assert updated_0430.elevation == trackpoints[6].elevation
