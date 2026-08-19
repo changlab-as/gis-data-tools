@@ -61,6 +61,20 @@ def trackpoints():
 
 
 @pytest.fixture
+def track_gpx(trackpoints):
+    gpx = gpxpy.gpx.GPX()
+
+    track = gpxpy.gpx.GPXTrack()
+    segment = gpxpy.gpx.GPXTrackSegment()
+
+    segment.points.extend(trackpoints)
+    track.segments.append(segment)
+    gpx.tracks.append(track)
+
+    return gpx
+
+
+@pytest.fixture
 def waypoint_0429():
     return gpxpy.gpx.GPXWaypoint(
         latitude=25.0832407828,
@@ -123,6 +137,14 @@ def waypoint_0431():
     )
 
 
+# Unit test
+def test_get_trackpoints(track_gpx, trackpoints):
+    """Test that get_trackpoints gets all trackpoints"""
+    result = match_trkpt_wpt.get_trackpoints(track_gpx)
+
+    assert result == trackpoints
+
+
 @pytest.mark.parametrize(
     "waypoint_fixture, expected_index",
     [
@@ -131,11 +153,10 @@ def waypoint_0431():
         ("waypoint_0431", 7),
     ],
 )
-
-# Unit test
 def test_find_closest_trackpoint(
     request, trackpoints, waypoint_fixture, expected_index
 ):
+    """Test find_closest_trackpoint using waypoint fixture"""
     waypoint = request.getfixturevalue(waypoint_fixture)
 
     result = match_trkpt_wpt.find_closest_trackpoint(
@@ -144,3 +165,36 @@ def test_find_closest_trackpoint(
     )
 
     assert result is trackpoints[expected_index]
+
+
+def test_find_closest_trackpoint_exact_time(trackpoints):
+    """Test find_closest_trackpoint using exact time"""
+    waypoint = gpxpy.gpx.GPXWaypoint(
+        latitude=25.0832407828,
+        longitude=121.6027333494,
+        time=datetime(
+            2026,
+            7,
+            29,
+            0,
+            12,
+            29,
+            tzinfo=timezone.utc,
+        ),
+    )
+
+    result = match_trkpt_wpt.find_closest_trackpoint(
+        waypoint,
+        trackpoints,
+    )
+
+    assert result is trackpoints[6]
+
+
+def test_find_closest_trackpoint_empty(waypoint_0429):
+    result = match_trkpt_wpt.find_closest_trackpoint(
+        waypoint_0429,
+        [],
+    )
+
+    assert result is None
