@@ -1,5 +1,4 @@
 import argparse
-from datetime import datetime, timezone
 import gpxpy
 import gpxpy.geo
 import logging
@@ -75,6 +74,24 @@ def find_closest_trackpoint(waypoint, trackpoints):
     return closest_trackpoint
 
 
+def match_waypoint(waypoint, trackpoints):
+    closest_trackpoint = find_closest_trackpoint(
+        waypoint,
+        trackpoints,
+    )
+
+    distance = gpxpy.geo.distance(
+        waypoint.latitude,
+        waypoint.longitude,
+        waypoint.elevation,
+        closest_trackpoint.latitude,
+        closest_trackpoint.longitude,
+        closest_trackpoint.elevation,
+    )
+
+    return closest_trackpoint, distance
+
+
 def main():
 
     parser = make_parser()
@@ -93,24 +110,15 @@ def main():
     all_trkpts = get_trackpoints(trk_gpx)
 
     for wp in wp_gpx.waypoints:
-        closest_trkpt = find_closest_trackpoint(wp, all_trkpts)
-        distance = gpxpy.geo.distance(
-            wp.latitude,
-            wp.longitude,
-            wp.elevation,
-            closest_trkpt.latitude,
-            closest_trkpt.longitude,
-            closest_trkpt.elevation,
-        )
+        closest, distance = match_waypoint(wp, all_trkpts)
         if distance > 5:
             unmatched.append(wp)
-            logging.info(f"{wp.name} is unmatched")
+            logging.info(f"{wp.name} is unmatched. Distance: {distance}")
 
             if args.update:
-                # if update is flagged in the argument, wpt will be updated
-                wp.latitude = closest_trkpt.latitude
-                wp.longitude = closest_trkpt.longitude
-                wp.elevation = closest_trkpt.elevation
+                wp.latitude = closest.latitude
+                wp.longitude = closest.longitude
+                wp.elevation = closest.elevation
         else:
             matched.append(wp)
 

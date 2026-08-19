@@ -107,7 +107,7 @@ def waypoint_0430():
             29,
             0,
             12,
-            27,
+            29,
             tzinfo=timezone.utc,
         ),
         name="0430",
@@ -134,6 +134,27 @@ def waypoint_0431():
         name="0431",
         comment="2,1",
         symbol="Flag, Blue",
+    )
+
+
+@pytest.fixture
+def waypoint_0m():
+    return gpxpy.gpx.GPXWaypoint(
+        latitude=25.0832406990,
+        longitude=121.6025701538,
+        elevation=20.1,
+        time=datetime(2026, 7, 29, 0, 11, 29, tzinfo=timezone.utc),
+    )
+
+
+@pytest.fixture
+def waypoint_5m():
+    return gpxpy.gpx.GPXWaypoint(
+        latitude=25.0832856984,
+        longitude=121.6027333494,
+        elevation=17.70,
+        time=datetime(2026, 7, 29, 0, 12, 29, tzinfo=timezone.utc),
+        name="5m",
     )
 
 
@@ -198,3 +219,30 @@ def test_find_closest_trackpoint_empty(waypoint_0429):
     )
 
     assert result is None
+
+
+@pytest.mark.parametrize(
+    "waypoint_fixture, expected_index, expected_distance",
+    [
+        ("waypoint_0m", 0, 0.0),
+        ("waypoint_5m", 6, 5.0),
+        ("waypoint_0430", 6, 34.96),
+        ("waypoint_0431", 7, 57.27),
+    ],
+)
+def test_match_waypoint(
+    request,
+    trackpoints,
+    waypoint_fixture,
+    expected_index,
+    expected_distance,
+):
+    waypoint = request.getfixturevalue(waypoint_fixture)
+
+    closest, distance = match_trkpt_wpt.match_waypoint(
+        waypoint,
+        trackpoints,
+    )
+
+    assert closest is trackpoints[expected_index]
+    assert distance == pytest.approx(expected_distance, abs=0.01)
