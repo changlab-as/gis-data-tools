@@ -75,6 +75,7 @@ def extract_polygons(kml_path):
 
     for placemark in root.findall(".//kml:Placemark", ns):
         name_elem = placemark.find("kml:name", ns)
+        description_elem = placemark.find("kml:description", ns)
         polygon = placemark.find(".//kml:Polygon", ns)
 
         if polygon is None:
@@ -85,7 +86,7 @@ def extract_polygons(kml_path):
             continue
 
         coords = parse_coordinates(coord_elem.text)
-        lat, lon = polygon_centroid(coords)
+        lat, lon = polygon_centroid(coords)  # process polygon coords
 
         if lat is None or lon is None:
             continue
@@ -97,6 +98,11 @@ def extract_polygons(kml_path):
                 ),
                 "latitude": lat,
                 "longitude": lon,
+                "description": (
+                    description_elem.text
+                    if description_elem is not None
+                    else ""
+                ),
             }
         )
 
@@ -106,10 +112,24 @@ def extract_polygons(kml_path):
 def write_csv(data, plant_names: Path, output_path):
     with open(plant_names, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-
         plant_fields = [row["plant_id"] for row in reader]
 
     fieldnames = ["survey_site", "coordinates", *plant_fields]
+
+    rows = []
+
+    for row in data:
+        coord_str = f"{row['latitude']:.6f}, {row['longitude']:.6f}"
+        csv_row = {
+            "survey_site": row["survey_site"],
+            "coordinates": coord_str,
+        }
+        for plant_id in plant_fields:
+            if id in row["description"]:
+                csv_row[plant_id] = "T"
+            else:
+                csv_row[plant_id] = "F"
+        rows.append(csv_row)
 
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
@@ -119,17 +139,7 @@ def write_csv(data, plant_names: Path, output_path):
         )
 
         writer.writeheader()
-
-        for row in data:
-            coord_str = f"{row['latitude']:.6f}, {row['longitude']:.6f}"
-
-            writer.writerow(
-                {
-                    "survey_site": row["survey_site"],
-                    "coordinates": coord_str,
-                }
-            )
-            # still need to parse placemark description plant ids
+        writer.writerows(rows)
 
 
 def main():
