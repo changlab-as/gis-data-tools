@@ -155,7 +155,7 @@ def main():
     polygons = extract_polygons(kml_path)
     write_csv(polygons, args.plant_names_csv, args.output)
 
-    print(f"Extracted {len(polygons)} polygons to {args.output}")
+    logging.info(f"Extracted {len(polygons)} polygons to {args.output}")
 
 
 if __name__ == "__main__":
