@@ -19,7 +19,7 @@ def make_parser():
         "--plant_names_csv",
         "-p",
         required=True,
-        help="Add it when it is a SURVEY event",
+        help="Required. The most recent plant_names csv sheet"
     )
     return parser
 
@@ -125,7 +125,7 @@ def write_csv(data, plant_names: Path, output_path):
             "coordinates": coord_str,
         }
         for plant_id in plant_fields:
-            if id in row["description"]:
+            if plant_id in row["description"]:
                 csv_row[plant_id] = "T"
             else:
                 csv_row[plant_id] = "F"
@@ -143,8 +143,8 @@ def write_csv(data, plant_names: Path, output_path):
 
 
 def main():
-    args = make_parser()
-    args.parse_args()
+    parser = make_parser()
+    args = parser.parse_args()
 
     kml_path = Path(args.kml_path)
 
@@ -153,7 +153,7 @@ def main():
         return
 
     polygons = extract_polygons(kml_path)
-    write_csv(polygons, args.output)
+    write_csv(polygons, args.plant_names_csv, args.output)
 
     print(f"Extracted {len(polygons)} polygons to {args.output}")
 
