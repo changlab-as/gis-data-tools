@@ -4,6 +4,23 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
+def make_parser():
+    parser = argparse.ArgumentParser(
+        description="Extract polygon centroids from KML (Google My Maps)"
+    )
+    parser.add_argument("--kml_path", "-k", help="Path to input KML file")
+    parser.add_argument(
+        "-o", "--output", default="output.csv", help="Output CSV path"
+    )
+    parser.add_argument(
+        "--plant_names_csv",
+        "-p",
+        required=True,
+        help="Add it when it is a SURVEY event",
+    )
+    return parser
+
+
 def parse_coordinates(coord_text):
     """
     Parse coordinate string into list of (lon, lat)
@@ -134,16 +151,8 @@ def write_csv(data, output_path):
 
 
 def main():
-
-    parser = argparse.ArgumentParser(
-        description="Extract polygon centroids from KML (Google My Maps)"
-    )
-    parser.add_argument("--kml_path", "-k", help="Path to input KML file")
-    parser.add_argument(
-        "-o", "--output", default="output.csv", help="Output CSV path"
-    )
-
-    args = parser.parse_args()
+    args = make_parser()
+    args.parser.parse_args()
 
     kml_path = Path(args.kml_path)
 
