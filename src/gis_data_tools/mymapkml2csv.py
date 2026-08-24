@@ -1,7 +1,10 @@
 import argparse
 import csv
+import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+logging.basicConfig(level=logging.INFO)
 
 
 def make_parser():
@@ -157,13 +160,13 @@ def main():
     kml_path = Path(args.kml_path)
 
     if not kml_path.exists():
-        print(f"Error: file not found {kml_path}")
+        logging.error(f"Error: no or incorrect KML file path")
         return
 
-    data = extract_polygons(kml_path)
-    write_csv(data, args.output)
+    polygons = extract_polygons(kml_path)
+    write_csv(polygons, args.output)
 
-    print(f"Extracted {len(data)} polygons to {args.output}")
+    print(f"Extracted {len(polygons)} polygons to {args.output}")
 
 
 if __name__ == "__main__":
