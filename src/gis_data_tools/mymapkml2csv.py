@@ -109,35 +109,19 @@ def extract_polygons(kml_path):
     return results
 
 
-def write_csv(data, output_path):
+def write_csv(data, plant_names: Path, output_path):
+    with open(plant_names, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        plant_fields = [row["plant_id"] for row in reader]
+
+    fieldnames = ["survey_site", "coordinates", *plant_fields]
+
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
-            fieldnames=[
-                "survey_site",
-                "coordinates",
-                "1_蠅翼草",
-                "2_山螞蝗",
-                "3_天藍苜蓿",
-                "4_含羞草",
-                "5_草木樨",
-                "6_煉莢豆",
-                "7_雞眼草",
-                "8_蔓花生",
-                "9_白三葉草",
-                "10_假地豆",
-                "11_穗花木藍",
-                "12_胡枝子",
-                "13_假山扁豆",
-                "14_太陽麻",
-                "15_鋪地蝙蝠草",
-                "16_銀合歡",
-                "17_倒卵葉木藍",
-                "18_疑似一條根",
-                "19_寬翼豆",
-                "20_田菁",
-            ],
-            quoting=csv.QUOTE_MINIMAL,  # ensures quotes when needed
+            fieldnames=fieldnames,
+            quoting=csv.QUOTE_MINIMAL,
         )
 
         writer.writeheader()
@@ -151,6 +135,7 @@ def write_csv(data, output_path):
                     "coordinates": coord_str,
                 }
             )
+            # still need to parse placemark description plant ids
 
 
 def main():
