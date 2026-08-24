@@ -144,7 +144,7 @@ def write_csv(data, plant_names: Path, output_path):
 
 def main():
     args = make_parser()
-    args.parser.parse_args()
+    args.parse_args()
 
     kml_path = Path(args.kml_path)
 
