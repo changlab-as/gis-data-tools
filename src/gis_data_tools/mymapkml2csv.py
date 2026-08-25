@@ -53,8 +53,7 @@ def polygon_centroid(
     coords: list[tuple[float, float]],
 ) -> tuple[float | None, float, None]:
     """
-    Simple centroid (average of vertices)
-    Works well for small polygons
+    Calculate the central point of a polygon using its average of vertices
     """
     if not coords:
         return None, None
@@ -68,6 +67,11 @@ def polygon_centroid(
 
 
 def extract_polygons(kml_path: Path) -> list:
+    """
+    Loop through KML file and [arse polygon placemarks out of KML
+    Process polygon centroids (use another function within this one)
+    Return a list of dictionaries, each of which is a polygon's data
+    """
     tree = ET.parse(kml_path)
     root = tree.getroot()
 
@@ -112,6 +116,12 @@ def extract_polygons(kml_path: Path) -> list:
 
 
 def write_csv(data: list, plant_names: Path, output_path: str | Path):
+    """
+    Read plant_names_csv and get most recent plant IDs
+    Loop through each polygon and get its coords and description fields to
+      create each polygon's row/record
+    Write these rows into the new CSV output file
+    """
     with open(plant_names, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         plant_fields = [row["plant_id"] for row in reader]
