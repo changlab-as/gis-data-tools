@@ -19,12 +19,12 @@ def make_parser():
         "--plant_names_csv",
         "-p",
         required=True,
-        help="Required. The most recent plant_names csv sheet"
+        help="Required. The most recent plant_names csv sheet",
     )
     return parser
 
 
-def parse_coordinates(coord_text):
+def parse_coordinates(coord_text: str) -> list[tuple[float, float]]:
     """
     Parse coordinate string into list of (lon, lat)
     """
@@ -49,7 +49,9 @@ def parse_coordinates(coord_text):
     return coords
 
 
-def polygon_centroid(coords):
+def polygon_centroid(
+    coords: list[tuple[float, float]],
+) -> tuple[float | None, float, None]:
     """
     Simple centroid (average of vertices)
     Works well for small polygons
@@ -65,7 +67,7 @@ def polygon_centroid(coords):
     return lat_sum / n, lon_sum / n
 
 
-def extract_polygons(kml_path):
+def extract_polygons(kml_path: Path) -> list:
     tree = ET.parse(kml_path)
     root = tree.getroot()
 
@@ -109,7 +111,7 @@ def extract_polygons(kml_path):
     return results
 
 
-def write_csv(data, plant_names: Path, output_path):
+def write_csv(data: list, plant_names: Path, output_path: str | Path):
     with open(plant_names, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         plant_fields = [row["plant_id"] for row in reader]
@@ -149,7 +151,7 @@ def main():
     kml_path = Path(args.kml_path)
 
     if not kml_path.exists():
-        logging.error(f"Error: no or incorrect KML file path")
+        logging.error(f"Error: no or incorrect KML file path ({kml_path})")
         return
 
     polygons = extract_polygons(kml_path)
