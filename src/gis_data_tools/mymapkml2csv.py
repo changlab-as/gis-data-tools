@@ -59,12 +59,10 @@ def polygon_centroid(
     if not coords:
         return None, None
 
-    lon_sum = sum(p[0] for p in coords)
-    lat_sum = sum(p[1] for p in coords)
+    avg_lon = sum(p[0] for p in coords) / len(coords)
+    avg_lat = sum(p[1] for p in coords) / len(coords)
 
-    n = len(coords)
-
-    return lat_sum / n, lon_sum / n
+    return avg_lat, avg_lon
 
 
 def extract_polygons(kml_path: Path) -> list:
