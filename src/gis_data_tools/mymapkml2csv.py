@@ -69,7 +69,7 @@ def polygon_centroid(
 
 def extract_polygons(kml_path: Path) -> list:
     """
-    Loop through KML file and [arse polygon placemarks out of KML
+    Loop through KML file and parse polygon placemarks out of KML
     Process polygon centroids (use another function within this one)
     Return a list of dictionaries, each of which is a polygon's data
     """
