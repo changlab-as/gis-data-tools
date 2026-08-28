@@ -117,55 +117,6 @@ def extract_polygons(kml_path: Path) -> list[dict]:
     return results
 
 
-# def extract_polygons(kml_path: Path) -> list:
-#     """
-#     Loop through KML file and parse polygon placemarks out of KML
-#     Process polygon centroids (use another function within this one)
-#     Return a list of dictionaries, each of which is a polygon's data
-#     """
-#     tree = ET.parse(kml_path)
-#     root = tree.getroot()
-
-#     ns = {"kml": "http://www.opengis.net/kml/2.2"}
-
-#     results = []
-
-#     for placemark in root.findall(".//kml:Placemark", ns):
-#         name_elem = placemark.find("kml:name", ns)
-#         description_elem = placemark.find("kml:description", ns)
-#         polygon = placemark.find(".//kml:Polygon", ns)
-
-#         if polygon is None:
-#             continue
-
-#         coord_elem = polygon.find(".//kml:coordinates", ns)
-#         if coord_elem is None:
-#             continue
-
-#         coords = parse_coordinates(coord_elem.text)
-#         lat, lon = polygon_centroid(coords)  # process polygon coords
-
-#         if lat is None or lon is None:
-#             continue
-
-#         results.append(
-#             {
-#                 "survey_site": (
-#                     name_elem.text if name_elem is not None else ""
-#                 ),
-#                 "latitude": lat,
-#                 "longitude": lon,
-#                 "description": (
-#                     description_elem.text
-#                     if description_elem is not None
-#                     else ""
-#                 ),
-#             }
-#         )
-
-#     return results
-
-
 def write_csv(data: list, plant_names: Path, output_path: str | Path):
     """
     Read plant_names_csv and get most recent plant IDs
