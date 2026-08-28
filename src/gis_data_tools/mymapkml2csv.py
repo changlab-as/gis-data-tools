@@ -6,6 +6,8 @@ from pathlib import Path
 
 logging.basicConfig(level=logging.INFO)
 
+NS = {"kml": "http://www.opengis.net/kml/2.2"}
+
 
 def make_parser():
     parser = argparse.ArgumentParser(
@@ -68,7 +70,6 @@ def polygon_centroid(
 def parse_placemark(placemark: ET.Element) -> dict | None:
     """Extract polygon data from a single Placemark XML element"""
 
-    NS = {"kml": "http://www.opengis.net/kml/2.2"}
     polygon = placemark.find(".//kml:Polygon", NS)
     if polygon is None:
         return None
@@ -104,7 +105,6 @@ def parse_placemark(placemark: ET.Element) -> dict | None:
 def extract_polygons(kml_path: Path) -> list[dict]:
     """Loop through KML file and extract polygon records"""
 
-    NS = {"kml": "http://www.opengis.net/kml/2.2"}
     tree = ET.parse(kml_path)
     root = tree.getroot()
 
@@ -117,7 +117,9 @@ def extract_polygons(kml_path: Path) -> list[dict]:
     return results
 
 
-def write_csv(data: list[dict], plant_names: Path, output_path: str | Path):
+def write_csv(
+    data: list[dict], plant_names: Path, output_path: str | Path
+):
     """
     Read plant_names_csv and get most recent plant IDs
     Loop through each polygon and get its coords and description fields to
