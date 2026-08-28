@@ -52,7 +52,7 @@ def parse_coordinates(coord_text: str) -> list[tuple[float, float]]:
 
 def polygon_centroid(
     coords: list[tuple[float, float]],
-) -> tuple[float | None, float, None]:
+) -> tuple[float | None, float | None]:
     """
     Calculate the central point of a polygon using its average of vertices
     """
@@ -117,7 +117,7 @@ def extract_polygons(kml_path: Path) -> list[dict]:
     return results
 
 
-def write_csv(data: list, plant_names: Path, output_path: str | Path):
+def write_csv(data: list[dict], plant_names: Path, output_path: str | Path):
     """
     Read plant_names_csv and get most recent plant IDs
     Loop through each polygon and get its coords and description fields to
