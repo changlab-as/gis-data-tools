@@ -26,7 +26,8 @@ def make_parser():
 
 def parse_coordinates(coord_text: str) -> list[tuple[float, float]]:
     """
-    Parse coordinate string into list of (lon, lat)
+    Parse coordinate string into list of (lon, lat). Distinguish lat and lon by
+    the pair's degrees, currently lat <= 90, lon > 90
     """
     coords = []
 
