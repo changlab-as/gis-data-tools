@@ -65,53 +65,105 @@ def polygon_centroid(
     return avg_lat, avg_lon
 
 
-def extract_polygons(kml_path: Path) -> list:
-    """
-    Loop through KML file and parse polygon placemarks out of KML
-    Process polygon centroids (use another function within this one)
-    Return a list of dictionaries, each of which is a polygon's data
-    """
+def parse_placemark(placemark: ET.Element) -> dict | None:
+    """Extract polygon data from a single Placemark XML element"""
+
+    NS = {"kml": "http://www.opengis.net/kml/2.2"}
+    polygon = placemark.find(".//kml:Polygon", NS)
+    if polygon is None:
+        return None
+
+    coord_elem = polygon.find(".//kml:coordinates", NS)
+    coords = parse_coordinates(
+        coord_elem.text if coord_elem is not None else None
+    )
+    lat, lon = polygon_centroid(coords)
+
+    if lat is None or lon is None:
+        return None
+
+    name_elem = placemark.find("kml:name", NS)
+    desc_elem = placemark.find("kml:description", NS)
+
+    return {
+        "survey_site": (
+            name_elem.text
+            if name_elem is not None and name_elem.text
+            else ""
+        ),
+        "latitude": lat,
+        "longitude": lon,
+        "description": (
+            desc_elem.text
+            if desc_elem is not None and desc_elem.text
+            else ""
+        ),
+    }
+
+
+def extract_polygons(kml_path: Path) -> list[dict]:
+    """Loop through KML file and extract polygon records"""
+
+    NS = {"kml": "http://www.opengis.net/kml/2.2"}
     tree = ET.parse(kml_path)
     root = tree.getroot()
 
-    ns = {"kml": "http://www.opengis.net/kml/2.2"}
-
     results = []
-
-    for placemark in root.findall(".//kml:Placemark", ns):
-        name_elem = placemark.find("kml:name", ns)
-        description_elem = placemark.find("kml:description", ns)
-        polygon = placemark.find(".//kml:Polygon", ns)
-
-        if polygon is None:
-            continue
-
-        coord_elem = polygon.find(".//kml:coordinates", ns)
-        if coord_elem is None:
-            continue
-
-        coords = parse_coordinates(coord_elem.text)
-        lat, lon = polygon_centroid(coords)  # process polygon coords
-
-        if lat is None or lon is None:
-            continue
-
-        results.append(
-            {
-                "survey_site": (
-                    name_elem.text if name_elem is not None else ""
-                ),
-                "latitude": lat,
-                "longitude": lon,
-                "description": (
-                    description_elem.text
-                    if description_elem is not None
-                    else ""
-                ),
-            }
-        )
+    for placemark in root.findall(".//kml:Placemark", NS):
+        record = parse_placemark(placemark)
+        if record:
+            results.append(record)
 
     return results
+
+
+# def extract_polygons(kml_path: Path) -> list:
+#     """
+#     Loop through KML file and parse polygon placemarks out of KML
+#     Process polygon centroids (use another function within this one)
+#     Return a list of dictionaries, each of which is a polygon's data
+#     """
+#     tree = ET.parse(kml_path)
+#     root = tree.getroot()
+
+#     ns = {"kml": "http://www.opengis.net/kml/2.2"}
+
+#     results = []
+
+#     for placemark in root.findall(".//kml:Placemark", ns):
+#         name_elem = placemark.find("kml:name", ns)
+#         description_elem = placemark.find("kml:description", ns)
+#         polygon = placemark.find(".//kml:Polygon", ns)
+
+#         if polygon is None:
+#             continue
+
+#         coord_elem = polygon.find(".//kml:coordinates", ns)
+#         if coord_elem is None:
+#             continue
+
+#         coords = parse_coordinates(coord_elem.text)
+#         lat, lon = polygon_centroid(coords)  # process polygon coords
+
+#         if lat is None or lon is None:
+#             continue
+
+#         results.append(
+#             {
+#                 "survey_site": (
+#                     name_elem.text if name_elem is not None else ""
+#                 ),
+#                 "latitude": lat,
+#                 "longitude": lon,
+#                 "description": (
+#                     description_elem.text
+#                     if description_elem is not None
+#                     else ""
+#                 ),
+#             }
+#         )
+
+#     return results
 
 
 def write_csv(data: list, plant_names: Path, output_path: str | Path):
@@ -158,13 +210,21 @@ def main():
     args = parser.parse_args()
 
     kml_path = Path(args.kml_path)
+    plant_path = Path(args.plant_names_csv)
+    output_path = Path(args.output)
 
     if not kml_path.exists():
-        logging.error(f"Error: no or incorrect KML file path ({kml_path})")
+        logging.error(f"Error: KML file does not exist ({kml_path})")
+        return
+
+    if not plant_path.exists():
+        logging.error(
+            f"Error: Plant names CSV does not exist ({plant_path})"
+        )
         return
 
     polygons = extract_polygons(kml_path)
-    write_csv(polygons, args.plant_names_csv, args.output)
+    write_csv(polygons, plant_path, output_path)
 
     logging.info(f"Extracted {len(polygons)} polygons to {args.output}")
 
