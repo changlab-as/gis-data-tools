@@ -29,54 +29,62 @@ def polygon_coords():
 def polygon_placemarks():
     xml_text = """
     <Placemark>
-      <name>0430</name>
-      <description>1_Grona_triflora, 6_Alysicarpus_vaginalis</description>
-      <styleUrl>#icon-1899-0288D1</styleUrl>
-      <Point>
-        <coordinates>
-          121.602414,25.083121,0
-        </coordinates>
-      </Point>
+      <name>polygon01</name>
+      <description>1_Grona_triflora</description>
+      <styleUrl>#poly-E65100-1200-77</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              121.6028361,25.082438,0
+              121.6027623,25.082449,0
+              121.6027368,25.0823895,0
+              121.6027703,25.082353,0
+              121.602844,25.082375,0
+              121.6028361,25.082438,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
     </Placemark>
     <Placemark>
-      <name>0431</name>
-      <description>2_Grona_heterophylla, 1_Grona_triflora</description>
-      <styleUrl>#icon-1899-0288D1</styleUrl>
-      <Point>
-        <coordinates>
-          121.602327,25.082877,0
-        </coordinates>
-      </Point>
-    </Placemark>
-    <Placemark>
-      <name>0432</name>
-      <description>2_Grona_heterophylla</description>
-      <styleUrl>#icon-1899-0288D1</styleUrl>
-      <Point>
-        <coordinates>
-          121.602506,25.082634,0
-        </coordinates>
-      </Point>
-    </Placemark>
-    <Placemark>
-      <name>0433</name>
+      <name>polygon02</name>
       <description>X</description>
-      <styleUrl>#icon-1899-0288D1</styleUrl>
-      <Point>
-        <coordinates>
-          121.602868,25.082614,0
-        </coordinates>
-      </Point>
+      <styleUrl>#poly-000000-1200-77</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              121.6025583,25.0823609,0
+              121.6025583,25.082446,0
+              121.6024778,25.0824229,0
+              121.6024751,25.0823512,0
+              121.6025583,25.0823609,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
     </Placemark>
     <Placemark>
-      <name>0434</name>
-      <description>X</description>
-      <styleUrl>#icon-1899-0288D1</styleUrl>
-      <Point>
-        <coordinates>
-          121.603167,25.082674,0
-        </coordinates>
-      </Point>
+      <name>polygon03</name>
+      <description>1_Grona_triflora, 2_Grona_heterophylla</description>
+      <styleUrl>#poly-E65100-1200-77</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              121.6025381,25.0824897,0
+              121.6025207,25.0825383,0
+              121.6024282,25.0825006,0
+              121.6024671,25.0824472,0
+              121.6025381,25.0824897,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
     </Placemark>
     """
 
