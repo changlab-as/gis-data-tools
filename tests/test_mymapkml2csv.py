@@ -6,7 +6,7 @@ import gis_data_tools.mymapkml2csv as kml2csv
 
 @pytest.fixture
 def standard_kml_coords():
-    return "121.602486,25.082335 121.5, 24.05"
+    return "121.602486,25.082335 121.5,24.05"
 
 
 @pytest.fixture
@@ -91,7 +91,52 @@ def polygon_placemarks():
     return ET.fromstring(xml_text)
 
 
-def test_parse_coordinates():
-    """Test parse_coordinates function
-    given a few pairs of coordinates, this function can correctly
-    categorize them into lontitude and latitude pairs"""
+@pytest.fixture
+def plant_file(tmp_path):
+    file = tmp_path / "plant.csv"
+
+    file.write_text(
+        """plant_id
+        1_Grona_triflora
+        2_Grona_heterophylla
+        3_Medicago_lupulina""",
+        encoding="utf-8",
+    )
+    return file
+
+
+def test_parse_standard_kml_coords(standard_kml_coords):
+    result = kml2csv.parse_coordinates(standard_kml_coords)
+
+    assert result == [
+        (121.602486, 25.082335),
+        (121.5, 24.05),
+    ]
+
+
+def test_parse_lat_lon_coords(lat_lon_coords):
+    result = kml2csv.parse_coordinates(lat_lon_coords)
+
+    assert result == [
+        (121.602486, 25.082335),
+        (121.5, 25.05),
+    ]
+
+
+def test_parse_empty_coords():
+    result = kml2csv.parse_coordinates("")
+
+    assert result == []
+
+
+def test_polygon_centroid(polygon_coords):
+    result = kml2csv.polygon_centroid(polygon_coords)
+
+    assert result == (25.08209898, 121.60283256)
+
+
+def test_polygon_centroid_empty():
+    lat, lon = kml2csv.polygon_centroid([])
+
+    assert lat is None
+    assert lon is None
