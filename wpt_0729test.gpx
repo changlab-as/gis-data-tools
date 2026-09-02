@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1"
+    xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3"
+    xmlns:wptx1="http://www.garmin.com/xmlschemas/WaypointExtension/v1"
+    xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" creator="GPSMAP 67"
+    version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd
+                        http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd
+                        http://www.garmin.com/xmlschemas/TrackStatsExtension/v1 http://www8.garmin.com/xmlschemas/TrackStatsExtension.xsd
+                        http://www.garmin.com/xmlschemas/WaypointExtension/v1 http://www8.garmin.com/xmlschemas/WaypointExtensionv1.xsd
+                        http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+    <metadata>
+        <link href="http://www.garmin.com">
+            <text>Garmin International</text>
+        </link>
+        <time>2026-07-29T00:12:27Z</time>
+    </metadata>
+    <wpt lat="25.041636" lon="121.613144">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:12:27Z</time>
+        <name>0429</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041636" lon="121.613144">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:20:01Z</time>
+        <name>0430</name>
+        <cmt>1,6</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041636" lon="121.613144">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:22:20Z</time>
+        <name>0431</name>
+        <cmt>2,1</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041636" lon="121.613144">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:24:51Z</time>
+        <name>0432</name>
+        <cmt>2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.082614" lon="121.602868">
+        <ele>16.813906</ele>
+        <time>2026-07-29T00:27:05Z</time>
+        <name>0433</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:29:37Z</time>
+        <name>0434</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:32:01Z</time>
+        <name>0435</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:33:22Z</time>
+        <name>0436</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:35:03Z</time>
+        <name>0437</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:39:54Z</time>
+        <name>0438</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:42:20Z</time>
+        <name>0439</name>
+        <cmt>2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:45:00Z</time>
+        <name>0440</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:47:27Z</time>
+        <name>0441</name>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.041632" lon="121.613145">
+        <ele>20.117188</ele>
+        <time>2026-07-29T00:47:51Z</time>
+        <name>0442</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.082333" lon="121.604457">
+        <ele>18.372131</ele>
+        <time>2026-07-29T00:50:39Z</time>
+        <name>0443</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.082260" lon="121.604770">
+        <ele>17.327095</ele>
+        <time>2026-07-29T00:53:23Z</time>
+        <name>0444</name>
+        <cmt>1</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.082198" lon="121.604893">
+        <ele>17.802959</ele>
+        <time>2026-07-29T00:56:29Z</time>
+        <name>0445</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.082112" lon="121.604529">
+        <ele>18.054888</ele>
+        <time>2026-07-29T00:58:47Z</time>
+        <name>0446</name>
+        <cmt>1,2</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.081939" lon="121.603719">
+        <ele>18.792013</ele>
+        <time>2026-07-29T01:02:57Z</time>
+        <name>0447</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.081757" lon="121.603612">
+        <ele>18.959965</ele>
+        <time>2026-07-29T01:04:52Z</time>
+        <name>0448</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.081404" lon="121.603531">
+        <ele>19.426500</ele>
+        <time>2026-07-29T01:07:37Z</time>
+        <name>0449</name>
+        <cmt>X</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+    <wpt lat="25.081654" lon="121.603147">
+        <ele>20.751459</ele>
+        <time>2026-07-29T01:10:39Z</time>
+        <name>0450</name>
+        <cmt>6</cmt>
+        <sym>Flag, Blue</sym>
+    </wpt>
+</gpx>
