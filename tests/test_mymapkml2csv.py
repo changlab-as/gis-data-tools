@@ -52,6 +52,23 @@ def polygon_placemark():
 
 
 @pytest.fixture
+def polygon_without_coordinates():
+    xml_text = """
+    <Placemark xmlns="http://www.opengis.net/kml/2.2">
+        <name>empty_polygon</name>
+        <Polygon>
+            <outerBoundaryIs>
+                <LinearRing>
+                </LinearRing>
+            </outerBoundaryIs>
+        </Polygon>
+    </Placemark>
+    """
+
+    return ET.fromstring(xml_text)
+
+
+@pytest.fixture
 def point_placemark():
     xml_text = """
         <Placemark>
@@ -231,6 +248,13 @@ def test_parse_placemark(polygon_placemark):
 
 def test_point_placemark(point_placemark):
     result = kml2csv.parse_placemark(point_placemark)
+
+    assert result is None
+
+
+def test_parse_placemark_without_coordinates(polygon_without_coordinates):
+
+    result = kml2csv.parse_placemark(polygon_without_coordinates)
 
     assert result is None
 
