@@ -26,6 +26,49 @@ def polygon_coords():
 
 
 @pytest.fixture
+def polygon_placemark():
+    xml_text = """
+    <Placemark xmlns="http://www.opengis.net/kml/2.2">
+        <name>polygon01</name>
+        <description>1_Grona_triflora</description>
+        <Polygon>
+            <outerBoundaryIs>
+                <LinearRing>
+                    <coordinates>
+                        121.6028361,25.082438,0
+                        121.6027623,25.082449,0
+                        121.6027368,25.0823895,0
+                        121.6027703,25.082353,0
+                        121.602844,25.082375,0
+                        121.6028361,25.082438,0
+                    </coordinates>
+                </LinearRing>
+            </outerBoundaryIs>
+        </Polygon>
+    </Placemark>
+    """
+
+    return ET.fromstring(xml_text)
+
+
+@pytest.fixture
+def point_placemark():
+    xml_text = """
+        <Placemark>
+          <name>0621</name>
+          <description>8_Arachis_pintoi</description>
+          <styleUrl>#icon-1899-0288D1</styleUrl>
+          <Point>
+            <coordinates>
+              121.59205,25.043945,0
+            </coordinates>
+          </Point>
+        </Placemark>"""
+
+    return ET.fromstring(xml_text)
+
+
+@pytest.fixture
 def point_placemark_file(tmp_path):
     fp = tmp_path / "point_placemark.kml"
 
@@ -137,6 +180,7 @@ def plant_file(tmp_path):
     return file
 
 
+# Unit tests
 def test_parse_standard_kml_coords(standard_kml_coords):
     result = kml2csv.parse_coordinates(standard_kml_coords)
 
@@ -172,6 +216,23 @@ def test_polygon_centroid_empty():
 
     assert lat is None
     assert lon is None
+
+
+def test_parse_placemark(polygon_placemark):
+    result = kml2csv.parse_placemark(polygon_placemark)
+
+    assert result == {
+        "survey_site": "polygon01",
+        "latitude": pytest.approx(25.082407083333333),
+        "longitude": pytest.approx(121.60279759999999),
+        "description": "1_Grona_triflora",
+    }
+
+
+def test_point_placemark(point_placemark):
+    result = kml2csv.parse_placemark(point_placemark)
+
+    assert result == None
 
 
 def test_extract_empty_polygons(point_placemark_file):
