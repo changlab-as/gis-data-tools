@@ -77,9 +77,11 @@ def parse_placemark(placemark: ET.Element) -> dict | None:
         return None
 
     coord_elem = polygon.find(".//kml:coordinates", NS)
-    coords = parse_coordinates(
-        coord_elem.text if coord_elem is not None else None
-    )
+    if coord_elem is None or not coord_elem.text:
+        return None
+
+    coords = parse_coordinates(coord_elem.text)
+
     lat, lon = polygon_centroid(coords)
 
     if lat is None or lon is None:
