@@ -172,9 +172,9 @@ def plant_file(tmp_path):
 
     file.write_text(
         """plant_id
-        1_Grona_triflora
-        2_Grona_heterophylla
-        3_Medicago_lupulina""",
+1_Grona_triflora
+2_Grona_heterophylla
+3_Medicago_lupulina""",
         encoding="utf-8",
     )
     return file
@@ -208,7 +208,7 @@ def test_parse_empty_coords():
 def test_polygon_centroid(polygon_coords):
     result = kml2csv.polygon_centroid(polygon_coords)
 
-    assert result == (25.08209898, 121.60283256)
+    assert result == pytest.approx((25.08209898, 121.60283256))
 
 
 def test_polygon_centroid_empty():
@@ -232,9 +232,10 @@ def test_parse_placemark(polygon_placemark):
 def test_point_placemark(point_placemark):
     result = kml2csv.parse_placemark(point_placemark)
 
-    assert result == None
+    assert result is None
 
 
+# Integration tests
 def test_extract_empty_polygons(point_placemark_file):
     result = kml2csv.extract_polygons(point_placemark_file)
 
