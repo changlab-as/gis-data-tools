@@ -350,3 +350,30 @@ def test_write_csv(tmp_path, plant_file, extracted_polygon_data):
             "3_Medicago_lupulina": "F",
         },
     ]
+
+
+def test_main(monkeypatch, polygon_placemarks_file, plant_file, tmp_path):
+    output_file = tmp_path / "output.csv"
+
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "mymapkml2csv.py",
+            "--kml_path",
+            str(polygon_placemarks_file),
+            "--plant_names_csv",
+            str(plant_file),
+            "--output",
+            str(output_file),
+        ],
+    )
+
+    kml2csv.main()
+
+    assert output_file.exists()
+
+    with open(output_file, newline="", encoding="utf-8") as f:
+        result = list(csv.DictReader(f))
+
+    assert output_file.exists()
+    assert len(result) == 3
