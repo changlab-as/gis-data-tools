@@ -197,6 +197,30 @@ def plant_file(tmp_path):
     return file
 
 
+@pytest.fixture
+def extracted_polygon_data():
+    return [
+        {
+            "survey_site": "polygon01",
+            "latitude": 25.082407083333333,
+            "longitude": 121.6027976,
+            "description": "1_Grona_triflora",
+        },
+        {
+            "survey_site": "polygon02",
+            "latitude": 25.08238838,
+            "longitude": 121.60252556,
+            "description": "X",
+        },
+        {
+            "survey_site": "polygon03",
+            "latitude": 25.0824931,
+            "longitude": 121.60249844,
+            "description": ("1_Grona_triflora, 2_Grona_heterophylla"),
+        },
+    ]
+
+
 # Unit tests
 def test_parse_standard_kml_coords(standard_kml_coords):
     result = kml2csv.parse_coordinates(standard_kml_coords)
@@ -287,5 +311,42 @@ def test_extract_polygons(polygon_placemarks_file):
             "latitude": 25.0824931,
             "longitude": 121.60249844,
             "description": "1_Grona_triflora, 2_Grona_heterophylla",
+        },
+    ]
+
+
+def test_write_csv(tmp_path, plant_file, extracted_polygon_data):
+    output_file = tmp_path / "output.csv"
+
+    kml2csv.write_csv(
+        extracted_polygon_data,
+        plant_file,
+        output_file,
+    )
+
+    with open(output_file, newline="", encoding="utf-8") as f:
+        result = list(csv.DictReader(f))
+
+    assert result == [
+        {
+            "survey_site": "polygon01",
+            "coordinates": "25.082407, 121.602798",
+            "1_Grona_triflora": "T",
+            "2_Grona_heterophylla": "F",
+            "3_Medicago_lupulina": "F",
+        },
+        {
+            "survey_site": "polygon02",
+            "coordinates": "25.082388, 121.602526",
+            "1_Grona_triflora": "F",
+            "2_Grona_heterophylla": "F",
+            "3_Medicago_lupulina": "F",
+        },
+        {
+            "survey_site": "polygon03",
+            "coordinates": "25.082493, 121.602498",
+            "1_Grona_triflora": "T",
+            "2_Grona_heterophylla": "T",
+            "3_Medicago_lupulina": "F",
         },
     ]
