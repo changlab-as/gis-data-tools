@@ -1,18 +1,37 @@
 import argparse
 import csv
+import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+logging.basicConfig(level=logging.INFO)
 
-def parse_coordinates(coord_text):
+NS = {"kml": "http://www.opengis.net/kml/2.2"}
+
+
+def make_parser():
+    parser = argparse.ArgumentParser(
+        description="Extract polygon centroids from KML (Google My Maps)"
+    )
+    parser.add_argument("--kml_path", "-k", help="Path to input KML file")
+    parser.add_argument(
+        "-o", "--output", default="output.csv", help="Output CSV path"
+    )
+    parser.add_argument(
+        "--plant_names_csv",
+        "-p",
+        required=True,
+        help="Required. The most recent plant_names csv sheet",
+    )
+    return parser
+
+
+def parse_coordinates(coord_text: str) -> list[tuple[float, float]]:
     """
-    Parse coordinate string into list of (lon, lat)
-
-    Handles both:
-    - KML standard: lon,lat[,alt]
-    - Your case: lat,lon
-
-    Auto-detects based on value range.
+    Parse coordinate string into list of (lon, lat). Taiwan coordinates are
+    detected as (lat, lon) when the second value has an absolute value
+    greater than 90. Otherwise, coordinates are assumed to be in
+    KML's standard (lon, lat) order.
     """
     coords = []
 
@@ -35,126 +54,136 @@ def parse_coordinates(coord_text):
     return coords
 
 
-def polygon_centroid(coords):
+def polygon_centroid(
+    coords: list[tuple[float, float]],
+) -> tuple[float | None, float | None]:
     """
-    Simple centroid (average of vertices)
-    Works well for small polygons
+    Calculate the central point of a polygon using its average of vertices
     """
     if not coords:
         return None, None
 
-    lon_sum = sum(p[0] for p in coords)
-    lat_sum = sum(p[1] for p in coords)
+    avg_lon = sum(p[0] for p in coords) / len(coords)
+    avg_lat = sum(p[1] for p in coords) / len(coords)
 
-    n = len(coords)
-
-    return lat_sum / n, lon_sum / n
+    return avg_lat, avg_lon
 
 
-def extract_polygons(kml_path):
+def parse_placemark(placemark: ET.Element) -> dict | None:
+    """Extract polygon data from a single Placemark XML element"""
+
+    polygon = placemark.find(".//kml:Polygon", NS)
+    if polygon is None:
+        return None
+
+    coord_elem = polygon.find(".//kml:coordinates", NS)
+    if coord_elem is None or not coord_elem.text:
+        return None
+
+    coords = parse_coordinates(coord_elem.text)
+
+    lat, lon = polygon_centroid(coords)
+
+    if lat is None or lon is None:
+        return None
+
+    name_elem = placemark.find("kml:name", NS)
+    desc_elem = placemark.find("kml:description", NS)
+
+    return {
+        "survey_site": (
+            name_elem.text
+            if name_elem is not None and name_elem.text
+            else ""
+        ),
+        "latitude": lat,
+        "longitude": lon,
+        "description": (
+            desc_elem.text
+            if desc_elem is not None and desc_elem.text
+            else ""
+        ),
+    }
+
+
+def extract_polygons(kml_path: Path) -> list[dict]:
+    """Loop through KML file and extract polygon records"""
+
     tree = ET.parse(kml_path)
     root = tree.getroot()
 
-    ns = {"kml": "http://www.opengis.net/kml/2.2"}
-
     results = []
-
-    for placemark in root.findall(".//kml:Placemark", ns):
-        name_elem = placemark.find("kml:name", ns)
-        polygon = placemark.find(".//kml:Polygon", ns)
-
-        if polygon is None:
-            continue
-
-        coord_elem = polygon.find(".//kml:coordinates", ns)
-        if coord_elem is None:
-            continue
-
-        coords = parse_coordinates(coord_elem.text)
-        lat, lon = polygon_centroid(coords)
-
-        if lat is None or lon is None:
-            continue
-
-        results.append(
-            {
-                "survey_site": (
-                    name_elem.text if name_elem is not None else ""
-                ),
-                "latitude": lat,
-                "longitude": lon,
-            }
-        )
+    for placemark in root.findall(".//kml:Placemark", NS):
+        record = parse_placemark(placemark)
+        if record:
+            results.append(record)
 
     return results
 
 
-def write_csv(data, output_path):
+def write_csv(
+    data: list[dict], plant_names: Path, output_path: str | Path
+):
+    """
+    Read plant_names_csv and get most recent plant IDs
+    Loop through each polygon and get its coords and description fields to
+      create each polygon's row/record
+    Write these rows into the new CSV output file
+    """
+    with open(plant_names, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        plant_fields = [row["plant_id"] for row in reader]
+
+    fieldnames = ["survey_site", "coordinates", *plant_fields]
+
+    rows = []
+
+    for row in data:
+        coord_str = f"{row['latitude']:.6f}, {row['longitude']:.6f}"
+        csv_row = {
+            "survey_site": row["survey_site"],
+            "coordinates": coord_str,
+        }
+        for plant_id in plant_fields:
+            if plant_id in row["description"]:
+                csv_row[plant_id] = "T"
+            else:
+                csv_row[plant_id] = "F"
+        rows.append(csv_row)
+
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
-            fieldnames=[
-                "survey_site",
-                "coordinates",
-                "1_蠅翼草",
-                "2_山螞蝗",
-                "3_天藍苜蓿",
-                "4_含羞草",
-                "5_草木樨",
-                "6_煉莢豆",
-                "7_雞眼草",
-                "8_蔓花生",
-                "9_白三葉草",
-                "10_假地豆",
-                "11_穗花木藍",
-                "12_胡枝子",
-                "13_假山扁豆",
-                "14_太陽麻",
-                "15_鋪地蝙蝠草",
-                "16_銀合歡",
-                "17_倒卵葉木藍",
-                "18_疑似一條根",
-                "19_寬翼豆",
-                "20_田菁",
-            ],
-            quoting=csv.QUOTE_MINIMAL,  # ensures quotes when needed
+            fieldnames=fieldnames,
+            quoting=csv.QUOTE_MINIMAL,
         )
 
         writer.writeheader()
-
-        for row in data:
-            coord_str = f"{row['latitude']:.6f}, {row['longitude']:.6f}"
-
-            writer.writerow(
-                {
-                    "survey_site": row["survey_site"],
-                    "coordinates": coord_str,
-                }
-            )
+        writer.writerows(rows)
 
 
 def main():
-
-    parser = argparse.ArgumentParser(
-        description="Extract polygon centroids from KML (Google My Maps)"
-    )
-    parser.add_argument("--kml_path", "-k", help="Path to input KML file")
-    parser.add_argument(
-        "-o", "--output", default="output.csv", help="Output CSV path"
-    )
-
+    parser = make_parser()
     args = parser.parse_args()
 
     kml_path = Path(args.kml_path)
+    plant_path = Path(args.plant_names_csv)
+    output_path = Path(args.output)
 
     if not kml_path.exists():
-        print(f"Error: file not found {kml_path}")
+        logging.error(f"Error: KML file does not exist ({kml_path})")
         return
 
-    data = extract_polygons(kml_path)
-    write_csv(data, args.output)
+    if not plant_path.exists():
+        logging.error(
+            f"Error: Plant names CSV does not exist ({plant_path})"
+        )
+        return
 
-    print(f"Extracted {len(data)} polygons to {args.output}")
+    polygons = extract_polygons(kml_path)
+    write_csv(polygons, plant_path, output_path)
+
+    logging.info(f"Extracted {len(polygons)} polygons to {args.output}")
 
 
 if __name__ == "__main__":
